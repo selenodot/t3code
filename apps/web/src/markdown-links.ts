@@ -108,6 +108,13 @@ export function rewriteMarkdownFileUriHref(href: string | undefined): string | n
   return `${target.path}${target.hash}`;
 }
 
+export function rewriteMarkdownFileLinkHref(href: string, cwd?: string): string | null {
+  const normalizedHref = normalizeMarkdownLinkDestination(href);
+  const fileUriHref = rewriteMarkdownFileUriHref(normalizedHref);
+  if (fileUriHref) return fileUriHref;
+  return resolveMarkdownFileLinkTarget(normalizedHref, cwd) ? normalizedHref : null;
+}
+
 function looksLikePosixFilesystemPath(path: string): boolean {
   if (!path.startsWith("/")) return false;
   if (POSIX_FILE_ROOT_PREFIXES.some((prefix) => path.startsWith(prefix))) return true;

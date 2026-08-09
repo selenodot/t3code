@@ -4,6 +4,7 @@ import {
   resolveInlineCodeFileLinkMeta,
   resolveMarkdownFileLinkMeta,
   resolveMarkdownFileLinkTarget,
+  rewriteMarkdownFileLinkHref,
   rewriteMarkdownFileUriHref,
 } from "./markdown-links";
 
@@ -32,6 +33,24 @@ describe("rewriteMarkdownFileUriHref", () => {
     expect(
       rewriteMarkdownFileUriHref(" <file:///D:/Programme/t3code/apps/web/src/markdown-links.ts> "),
     ).toBe("D:/Programme/t3code/apps/web/src/markdown-links.ts");
+  });
+});
+
+describe("rewriteMarkdownFileLinkHref", () => {
+  it("preserves windows drive paths that the default markdown transform rejects as schemes", () => {
+    expect(rewriteMarkdownFileLinkHref("C:\\Users\\mike\\project\\src\\main.ts:42")).toBe(
+      "C:\\Users\\mike\\project\\src\\main.ts:42",
+    );
+  });
+
+  it("preserves relative file links when a workspace is available", () => {
+    expect(rewriteMarkdownFileLinkHref("src/main.ts:42", "C:\\Users\\mike\\project")).toBe(
+      "src/main.ts:42",
+    );
+  });
+
+  it("does not preserve external links", () => {
+    expect(rewriteMarkdownFileLinkHref("https://example.com/docs", "C:\\repo")).toBeNull();
   });
 });
 
